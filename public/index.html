@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JustWatch Scanner - Argentina</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #1a1f2e 0%, #2d1f3d 100%);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid #30363d;
+    }
+    
+    header h1 {
+      font-size: 1.8rem;
+      background: linear-gradient(90deg, #58a6ff, #a371f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    header p { color: #8b949e; margin-top: 5px; }
+    
+    .tabs {
+      display: flex;
+      gap: 5px;
+      padding: 15px 20px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      flex-wrap: wrap;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .tab:hover { border-color: #58a6ff; color: #58a6ff; }
+    .tab.active { background: #238636; border-color: #238636; color: white; }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .panel { display: none; }
+    .panel.active { display: block; }
+    
+    .filters {
+      background: #161b22;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #30363d;
+    }
+    
+    .filter-group {
+      margin-bottom: 20px;
+    }
+    
+    .filter-group h3 {
+      font-size: 0.9rem;
+      color: #8b949e;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .filter-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .filter-options-scroll {
+      max-height: 150px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    
+    .filter-options-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .filter-options-scroll::-webkit-scrollbar-track {
+      background: #21262d;
+      border-radius: 3px;
+    }
+    
+    .filter-options-scroll::-webkit-scrollbar-thumb {
+      background: #30363d;
+      border-radius: 3px;
+    }
+    
+    .filter-options-scroll::-webkit-scrollbar-thumb:hover {
+      background: #484f58;
+    }
+    
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #21262d;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+    }
+    
+    .filter-option:hover { background: #30363d; }
+    .filter-option input { display: none; }
+    .filter-option.selected { background: #238636; }
+    
+    .filter-row {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    
+    .filter-row input, .filter-row select {
+      padding: 10px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #e6edf3;
+      font-size: 0.9rem;
+    }
+    
+    .filter-row input:focus, .filter-row select:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      background: #238636;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    
+    .btn:hover { background: #2ea043; }
+    .btn:disabled { background: #21262d; cursor: not-allowed; }
+    
+    .btn-secondary {
+      background: #30363d;
+    }
+    .btn-secondary:hover { background: #484f58; }
+    
+    .btn-small {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      margin-left: 10px;
+    }
+    
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .results-count {
+      color: #8b949e;
+    }
+    
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    .card {
+      background: #161b22;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #30363d;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #58a6ff;
+    }
+    
+    .card-poster {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      background: #21262d;
+      display: block;
+    }
+    
+    .card-date-header + .card-poster {
+      border-radius: 0;
+    }
+    
+    .card-body {
+      padding: 15px;
+    }
+    
+    .card-type {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      background: #30363d;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    
+    .card-type.movie { background: #388bfd33; color: #58a6ff; }
+    .card-type.show { background: #a371f733; color: #a371f7; }
+    
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+    
+    .card-original-title {
+      color: #8b949e;
+      font-size: 0.85rem;
+      font-style: italic;
+      margin-bottom: 5px;
+    }
+    
+    .card-year {
+      color: #8b949e;
+      font-size: 0.85rem;
+    }
+    
+    .card-countries {
+      font-size: 0.8rem;
+      color: #8b949e;
+      margin-bottom: 8px;
+    }
+    
+    .card-director {
+      font-size: 0.85rem;
+      color: #c9d1d9;
+      margin-bottom: 5px;
+    }
+    
+    .card-meta {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #f0c14b;
+      font-size: 0.85rem;
+    }
+    
+    .card-runtime {
+      color: #8b949e;
+      font-size: 0.85rem;
+    }
+    
+    .card-platform {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #23863633;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: #3fb950;
+    }
+    
+    .card-platform.rent { background: #f0c14b22; color: #f0c14b; }
+    .card-platform.buy { background: #f8514922; color: #f85149; }
+    
+    .card-genres {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #8b949e;
+    }
+    
+    .card-date {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #58a6ff;
+    }
+    
+    .card-date-header {
+      background: #238636;
+      color: white;
+      padding: 8px 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+    }
+    
+    .card-translated-title {
+      color: #8b949e;
+      font-size: 0.85rem;
+      font-style: italic;
+      margin-bottom: 5px;
+    }
+    
+    .card-link {
+      display: block;
+      margin-top: 10px;
+      color: #58a6ff;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    
+    .card-link:hover { text-decoration: underline; }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #8b949e;
+    }
+    
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #30363d;
+      border-top-color: #58a6ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #8b949e;
+    }
+    
+    .empty-icon { font-size: 3rem; margin-bottom: 15px; }
+    
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .search-box input {
+      flex: 1;
+      padding: 12px 16px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #e6edf3;
+      font-size: 1rem;
+    }
+    
+    .search-box input:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+
+    .export-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .filter-row { flex-direction: column; }
+      .filter-row input, .filter-row select { width: 100%; }
+      .tabs { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎬 JustWatch Scanner</h1>
+    <p>Explorá el catálogo de streaming en Argentina</p>
+  </header>
+  
+  <div class="tabs">
+    <button class="tab active" data-tab="new">🆕 Agregados recientemente</button>
+    <button class="tab" data-tab="browse">🔍 Explorar catálogo</button>
+    <button class="tab" data-tab="search">🔎 Buscar por nombre</button>
+  </div>
+  
+  <div class="container">
+    <!-- Panel: Nuevos títulos -->
+    <div id="panel-new" class="panel active">
+      <div class="filters">
+        <div class="filter-group">
+          <h3>Plataformas <button class="btn btn-small" onclick="toggleAllProviders('new')">Todas</button></h3>
+          <div class="filter-options" id="providers-new"></div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Tipo</h3>
+          <div class="filter-options" id="types-new">
+            <label class="filter-option"><input type="checkbox" value="MOVIE"> 🎬 Películas</label>
+            <label class="filter-option"><input type="checkbox" value="SHOW"> 📺 Series</label>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Disponibilidad</h3>
+          <div class="filter-options" id="monetization-new">
+            <label class="filter-option selected"><input type="checkbox" value="FLATRATE" checked> Streaming</label>
+            <label class="filter-option"><input type="checkbox" value="RENT"> Alquiler</label>
+            <label class="filter-option"><input type="checkbox" value="BUY"> Compra</label>
+            <label class="filter-option"><input type="checkbox" value="FREE"> Gratis</label>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Exclusividad</h3>
+          <div class="filter-options">
+            <label class="filter-option"><input type="checkbox" id="exclusive-new"> Solo títulos exclusivos de las plataformas seleccionadas</label>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Países de producción (incluir)</h3>
+          <div class="filter-options filter-options-scroll" id="countries-include-new">
+            <label class="filter-option"><input type="checkbox" value="US"> 🇺🇸 Estados Unidos</label>
+            <label class="filter-option"><input type="checkbox" value="GB"> 🇬🇧 Reino Unido</label>
+            <label class="filter-option"><input type="checkbox" value="FR"> 🇫🇷 Francia</label>
+            <label class="filter-option"><input type="checkbox" value="DE"> 🇩🇪 Alemania</label>
+            <label class="filter-option"><input type="checkbox" value="ES"> 🇪🇸 España</label>
+            <label class="filter-option"><input type="checkbox" value="IT"> 🇮🇹 Italia</label>
+            <label class="filter-option"><input type="checkbox" value="AR"> 🇦🇷 Argentina</label>
+            <label class="filter-option"><input type="checkbox" value="MX"> 🇲🇽 México</label>
+            <label class="filter-option"><input type="checkbox" value="BR"> 🇧🇷 Brasil</label>
+            <label class="filter-option"><input type="checkbox" value="CO"> 🇨🇴 Colombia</label>
+            <label class="filter-option"><input type="checkbox" value="JP"> 🇯🇵 Japón</label>
+            <label class="filter-option"><input type="checkbox" value="KR"> 🇰🇷 Corea del Sur</label>
+            <label class="filter-option"><input type="checkbox" value="CN"> 🇨🇳 China</label>
+            <label class="filter-option"><input type="checkbox" value="IN"> 🇮🇳 India</label>
+            <label class="filter-option"><input type="checkbox" value="CA"> 🇨🇦 Canadá</label>
+            <label class="filter-option"><input type="checkbox" value="AU"> 🇦🇺 Australia</label>
+            <label class="filter-option"><input type="checkbox" value="RU"> 🇷🇺 Rusia</label>
+            <label class="filter-option"><input type="checkbox" value="SE"> 🇸🇪 Suecia</label>
+            <label class="filter-option"><input type="checkbox" value="DK"> 🇩🇰 Dinamarca</label>
+            <label class="filter-option"><input type="checkbox" value="NO"> 🇳🇴 Noruega</label>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Países de producción (excluir)</h3>
+          <div class="filter-options filter-options-scroll" id="countries-exclude-new">
+            <label class="filter-option"><input type="checkbox" value="IN"> 🇮🇳 India</label>
+            <label class="filter-option"><input type="checkbox" value="KR"> 🇰🇷 Corea del Sur</label>
+            <label class="filter-option"><input type="checkbox" value="JP"> 🇯🇵 Japón</label>
+            <label class="filter-option"><input type="checkbox" value="CN"> 🇨🇳 China</label>
+            <label class="filter-option"><input type="checkbox" value="TR"> 🇹🇷 Turquía</label>
+            <label class="filter-option"><input type="checkbox" value="TH"> 🇹🇭 Tailandia</label>
+            <label class="filter-option"><input type="checkbox" value="ID"> 🇮🇩 Indonesia</label>
+            <label class="filter-option"><input type="checkbox" value="PH"> 🇵🇭 Filipinas</label>
+            <label class="filter-option"><input type="checkbox" value="SG"> 🇸🇬 Singapur</label>
+            <label class="filter-option"><input type="checkbox" value="MY"> 🇲🇾 Malasia</label>
+            <label class="filter-option"><input type="checkbox" value="NG"> 🇳🇬 Nigeria</label>
+            <label class="filter-option"><input type="checkbox" value="EG"> 🇪🇬 Egipto</label>
+          </div>
+        </div>
+        
+        <div class="filter-row">
+          <div>
+            <label style="display:block;color:#8b949e;font-size:0.8rem;margin-bottom:5px;">Agregado desde</label>
+            <input type="text" id="added-from" placeholder="DD/MM/AAAA" style="width:110px;">
+          </div>
+          <div>
+            <label style="display:block;color:#8b949e;font-size:0.8rem;margin-bottom:5px;">Agregado hasta</label>
+            <input type="text" id="added-to" placeholder="DD/MM/AAAA" style="width:110px;">
+          </div>
+          <div>
+            <label style="display:block;color:#8b949e;font-size:0.8rem;margin-bottom:5px;">Estreno desde</label>
+            <input type="number" id="release-year-from" placeholder="Ej: 2020" min="1900" max="2030" style="width:100px;">
+          </div>
+          <div>
+            <label style="display:block;color:#8b949e;font-size:0.8rem;margin-bottom:5px;">Estreno hasta</label>
+            <input type="number" id="release-year-to" placeholder="Ej: 2026" min="1900" max="2030" style="width:100px;">
+          </div>
+          <div>
+            <label style="display:block;color:#8b949e;font-size:0.8rem;margin-bottom:5px;">Cantidad</label>
+            <select id="count-new">
+              <option value="50">50</option>
+              <option value="100" selected>100</option>
+              <option value="200">200</option>
+              <option value="500">500</option>
+            </select>
+          </div>
+          <button class="btn" onclick="searchNewTitles()">Buscar</button>
+        </div>
+      </div>
+      
+      <div class="results-header">
+        <span class="results-count" id="count-new-results"></span>
+        <div class="export-btns">
+          <button class="btn btn-secondary" onclick="exportJSON('new')">Exportar JSON</button>
+          <button class="btn btn-secondary" onclick="exportCSV('new')">Exportar CSV</button>
+        </div>
+      </div>
+      <div id="results-new" class="results"></div>
+    </div>
+    
+    <!-- Panel: Explorar -->
+    <div id="panel-browse" class="panel">
+      <div class="filters">
+        <div class="filter-group">
+          <h3>Plataformas <button class="btn btn-small" onclick="toggleAllProviders('browse')">Todas</button></h3>
+          <div class="filter-options" id="providers-browse"></div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Tipo</h3>
+          <div class="filter-options" id="types-browse">
+            <label class="filter-option"><input type="checkbox" value="MOVIE"> 🎬 Películas</label>
+            <label class="filter-option"><input type="checkbox" value="SHOW"> 📺 Series</label>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Géneros</h3>
+          <div class="filter-options" id="genres-browse"></div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Disponibilidad</h3>
+          <div class="filter-options" id="monetization-browse">
+            <label class="filter-option selected"><input type="checkbox" value="FLATRATE" checked> Streaming</label>
+            <label class="filter-option"><input type="checkbox" value="RENT"> Alquiler</label>
+            <label class="filter-option"><input type="checkbox" value="BUY"> Compra</label>
+            <label class="filter-option"><input type="checkbox" value="FREE"> Gratis</label>
+          </div>
+        </div>
+        
+        <div class="filter-row">
+          <div>
+            <label style="display:block;color:#8b949e;font-size:0.8rem;margin-bottom:5px;">Año desde</label>
+            <input type="number" id="year-from" placeholder="ej: 2020" min="1900" max="2025">
+          </div>
+          <div>
+            <label style="display:block;color:#8b949e;font-size:0.8rem;margin-bottom:5px;">Año hasta</label>
+            <input type="number" id="year-to" placeholder="ej: 2024" min="1900" max="2025">
+          </div>
+          <div>
+            <label style="display:block;color:#8b949e;font-size:0.8rem;margin-bottom:5px;">Cantidad</label>
+            <select id="count-browse">
+              <option value="20">20</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <button class="btn" onclick="searchTitles()">Buscar</button>
+        </div>
+      </div>
+      
+      <div class="results-header">
+        <span class="results-count" id="count-browse-results"></span>
+      </div>
+      <div id="results-browse" class="results"></div>
+    </div>
+    
+    <!-- Panel: Buscar por nombre -->
+    <div id="panel-search" class="panel">
+      <div class="search-box">
+        <input type="text" id="search-query" placeholder="Escribí el nombre de una película o serie..." onkeypress="if(event.key==='Enter')searchByName()">
+        <button class="btn" onclick="searchByName()">Buscar</button>
+      </div>
+      <div id="results-search" class="results"></div>
+    </div>
+  </div>
+
+  <script>
+    let providers = [];
+    let genres = [];
+    let currentResults = { new: [], browse: [], search: [] };
+
+    // Inicializar
+    async function init() {
+      try {
+        const [providersRes, genresRes] = await Promise.all([
+          fetch('/api/providers').then(r => r.json()),
+          fetch('/api/genres').then(r => r.json())
+        ]);
+        providers = providersRes;
+        genres = genresRes;
+        renderFilters();
+        
+        // Valores por defecto para fechas de agregado
+        const today = new Date();
+        const monthAgo = new Date();
+        monthAgo.setDate(today.getDate() - 30);
+        
+        document.getElementById('added-from').value = formatDateDMY(monthAgo);
+        document.getElementById('added-to').value = formatDateDMY(today);
+        
+        // Cargar configuración guardada (sobreescribe los valores por defecto)
+        loadConfig();
+      } catch (err) {
+        console.error('Error loading data:', err);
+      }
+    }
+
+    function renderFilters() {
+      // Providers para ambos paneles
+      ['new', 'browse'].forEach(panel => {
+        const container = document.getElementById(`providers-${panel}`);
+        container.innerHTML = providers.map(p => `
+          <label class="filter-option">
+            <input type="checkbox" value="${p.id}"> ${p.name}
+          </label>
+        `).join('');
+      });
+
+      // Géneros solo para browse
+      const genresContainer = document.getElementById('genres-browse');
+      genresContainer.innerHTML = genres.map(g => `
+        <label class="filter-option">
+          <input type="checkbox" value="${g.id}"> ${g.name}
+        </label>
+      `).join('');
+
+      // Event listeners para toggle visual
+      document.querySelectorAll('.filter-option').forEach(opt => {
+        const checkbox = opt.querySelector('input');
+        if (checkbox.checked) opt.classList.add('selected');
+        opt.addEventListener('click', () => {
+          checkbox.checked = !checkbox.checked;
+          opt.classList.toggle('selected', checkbox.checked);
+        });
+      });
+    }
+
+    // Tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
+      });
+    });
+
+    // Helpers
+    function getCheckedValues(containerId) {
+      return [...document.querySelectorAll(`#${containerId} input:checked`)].map(i => i.value);
+    }
+
+    function toggleAllProviders(panel) {
+      const container = document.getElementById(`providers-${panel}`);
+      const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+      const allChecked = [...checkboxes].every(cb => cb.checked);
+      
+      checkboxes.forEach(cb => {
+        cb.checked = !allChecked;
+        cb.closest('.filter-option').classList.toggle('selected', !allChecked);
+      });
+      
+      if (panel === 'new') saveConfig();
+    }
+
+    function saveConfig() {
+      const config = {
+        providers: getCheckedValues('providers-new'),
+        types: getCheckedValues('types-new'),
+        monetization: getCheckedValues('monetization-new'),
+        exclusive: document.getElementById('exclusive-new').checked,
+        countriesInclude: getCheckedValues('countries-include-new'),
+        countriesExclude: getCheckedValues('countries-exclude-new'),
+        addedFrom: document.getElementById('added-from').value,
+        addedTo: document.getElementById('added-to').value,
+        releaseYearFrom: document.getElementById('release-year-from').value,
+        releaseYearTo: document.getElementById('release-year-to').value,
+        count: document.getElementById('count-new').value,
+      };
+      localStorage.setItem('justwatch-config', JSON.stringify(config));
+    }
+
+    function loadConfig() {
+      const saved = localStorage.getItem('justwatch-config');
+      if (!saved) return;
+      
+      try {
+        const config = JSON.parse(saved);
+        
+        // Restaurar checkboxes de providers
+        if (config.providers) {
+          document.querySelectorAll('#providers-new input').forEach(cb => {
+            cb.checked = config.providers.includes(cb.value);
+            cb.closest('.filter-option').classList.toggle('selected', cb.checked);
+          });
+        }
+        
+        // Restaurar tipos
+        if (config.types) {
+          document.querySelectorAll('#types-new input').forEach(cb => {
+            cb.checked = config.types.includes(cb.value);
+            cb.closest('.filter-option').classList.toggle('selected', cb.checked);
+          });
+        }
+        
+        // Restaurar monetización
+        if (config.monetization) {
+          document.querySelectorAll('#monetization-new input').forEach(cb => {
+            cb.checked = config.monetization.includes(cb.value);
+            cb.closest('.filter-option').classList.toggle('selected', cb.checked);
+          });
+        }
+        
+        // Restaurar exclusividad
+        if (config.exclusive !== undefined) {
+          const excl = document.getElementById('exclusive-new');
+          excl.checked = config.exclusive;
+          excl.closest('.filter-option').classList.toggle('selected', config.exclusive);
+        }
+        
+        // Restaurar países incluir
+        if (config.countriesInclude) {
+          document.querySelectorAll('#countries-include-new input').forEach(cb => {
+            cb.checked = config.countriesInclude.includes(cb.value);
+            cb.closest('.filter-option').classList.toggle('selected', cb.checked);
+          });
+        }
+        
+        // Restaurar países excluir
+        if (config.countriesExclude) {
+          document.querySelectorAll('#countries-exclude-new input').forEach(cb => {
+            cb.checked = config.countriesExclude.includes(cb.value);
+            cb.closest('.filter-option').classList.toggle('selected', cb.checked);
+          });
+        }
+        
+        // Restaurar fechas y años
+        if (config.addedFrom) document.getElementById('added-from').value = config.addedFrom;
+        if (config.addedTo) document.getElementById('added-to').value = config.addedTo;
+        if (config.releaseYearFrom) document.getElementById('release-year-from').value = config.releaseYearFrom;
+        if (config.releaseYearTo) document.getElementById('release-year-to').value = config.releaseYearTo;
+        if (config.count) document.getElementById('count-new').value = config.count;
+        
+      } catch (e) {
+        console.error('Error loading config:', e);
+      }
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      return new Date(dateStr).toLocaleDateString('es-AR');
+    }
+
+    function formatRuntime(mins) {
+      if (!mins) return '';
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return h > 0 ? `${h}h ${m}m` : `${m}m`;
+    }
+
+    function parseDateDMY(str) {
+      // Convierte DD/MM/AAAA a AAAA-MM-DD
+      if (!str) return null;
+      const parts = str.split('/');
+      if (parts.length !== 3) return null;
+      const [day, month, year] = parts;
+      if (!day || !month || !year) return null;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+
+    function formatDateDMY(date) {
+      // Convierte Date a DD/MM/AAAA
+      const d = date.getDate().toString().padStart(2, '0');
+      const m = (date.getMonth() + 1).toString().padStart(2, '0');
+      const y = date.getFullYear();
+      return `${d}/${m}/${y}`;
+    }
+
+    function getPosterUrl(url) {
+      if (!url) return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 3"><rect fill="%2321262d" width="2" height="3"/><text x="1" y="1.8" font-size="0.5" fill="%238b949e" text-anchor="middle">?</text></svg>';
+      return 'https://images.justwatch.com' + url.replace('{profile}', 's332').replace('{format}', 'webp');
+    }
+
+    function formatCountries(countries) {
+      if (!countries || !countries.length) return '';
+      const countryNames = {
+        'US': '🇺🇸 Estados Unidos', 'GB': '🇬🇧 Reino Unido', 'FR': '🇫🇷 Francia', 'DE': '🇩🇪 Alemania', 
+        'ES': '🇪🇸 España', 'IT': '🇮🇹 Italia', 'AR': '🇦🇷 Argentina', 'MX': '🇲🇽 México', 
+        'BR': '🇧🇷 Brasil', 'CO': '🇨🇴 Colombia', 'CL': '🇨🇱 Chile', 'PE': '🇵🇪 Perú',
+        'JP': '🇯🇵 Japón', 'KR': '🇰🇷 Corea del Sur', 'CN': '🇨🇳 China', 'IN': '🇮🇳 India', 
+        'TW': '🇹🇼 Taiwán', 'HK': '🇭🇰 Hong Kong', 'CA': '🇨🇦 Canadá', 'AU': '🇦🇺 Australia', 
+        'NZ': '🇳🇿 Nueva Zelanda', 'RU': '🇷🇺 Rusia', 'UA': '🇺🇦 Ucrania',
+        'SE': '🇸🇪 Suecia', 'DK': '🇩🇰 Dinamarca', 'NO': '🇳🇴 Noruega', 'FI': '🇫🇮 Finlandia', 
+        'NL': '🇳🇱 Países Bajos', 'BE': '🇧🇪 Bélgica', 'AT': '🇦🇹 Austria', 'CH': '🇨🇭 Suiza', 
+        'PL': '🇵🇱 Polonia', 'CZ': '🇨🇿 Chequia', 'HU': '🇭🇺 Hungría', 'GR': '🇬🇷 Grecia',
+        'PT': '🇵🇹 Portugal', 'IE': '🇮🇪 Irlanda', 'IL': '🇮🇱 Israel', 'ZA': '🇿🇦 Sudáfrica', 
+        'EG': '🇪🇬 Egipto', 'NG': '🇳🇬 Nigeria', 'TR': '🇹🇷 Turquía', 'TH': '🇹🇭 Tailandia', 
+        'ID': '🇮🇩 Indonesia', 'PH': '🇵🇭 Filipinas', 'MY': '🇲🇾 Malasia', 'SG': '🇸🇬 Singapur',
+        'VN': '🇻🇳 Vietnam', 'PK': '🇵🇰 Pakistán', 'BD': '🇧🇩 Bangladesh', 'SA': '🇸🇦 Arabia Saudita', 
+        'AE': '🇦🇪 Emiratos Árabes', 'IR': '🇮🇷 Irán', 'VE': '🇻🇪 Venezuela', 'UY': '🇺🇾 Uruguay',
+        'EC': '🇪🇨 Ecuador', 'BO': '🇧🇴 Bolivia', 'PY': '🇵🇾 Paraguay', 'CU': '🇨🇺 Cuba',
+        'RO': '🇷🇴 Rumania', 'BG': '🇧🇬 Bulgaria', 'RS': '🇷🇸 Serbia', 'HR': '🇭🇷 Croacia',
+        'SK': '🇸🇰 Eslovaquia', 'SI': '🇸🇮 Eslovenia', 'LT': '🇱🇹 Lituania', 'LV': '🇱🇻 Letonia',
+        'EE': '🇪🇪 Estonia', 'IS': '🇮🇸 Islandia', 'LU': '🇱🇺 Luxemburgo', 'MT': '🇲🇹 Malta',
+        'CY': '🇨🇾 Chipre', 'MA': '🇲🇦 Marruecos', 'TN': '🇹🇳 Túnez', 'KE': '🇰🇪 Kenia',
+        'GH': '🇬🇭 Ghana', 'SN': '🇸🇳 Senegal', 'ET': '🇪🇹 Etiopía', 'TZ': '🇹🇿 Tanzania'
+      };
+      return countries.map(c => countryNames[c] || c).join(', ');
+    }
+
+    function getDirectors(credits) {
+      if (!credits || !credits.length) return '';
+      const directors = credits.filter(c => c.role === 'DIRECTOR').map(c => c.name);
+      return directors.join(', ');
+    }
+
+    // Render cards
+    function renderNewTitles(edges, containerId) {
+      const container = document.getElementById(containerId);
+      if (!edges.length) {
+        container.innerHTML = '<div class="empty"><div class="empty-icon">🎬</div><p>No se encontraron títulos con esos filtros</p></div>';
+        return;
+      }
+
+      container.innerHTML = edges.map(edge => {
+        const t = edge.node;
+        const o = edge.newOffer;
+        const c = t.content;
+        const monetClass = o.monetizationType === 'FLATRATE' ? '' : o.monetizationType === 'RENT' ? 'rent' : 'buy';
+        const monetText = o.monetizationType === 'FLATRATE' ? 'Streaming' : 
+                         o.monetizationType === 'RENT' ? `Alquiler ${o.currency || ''} ${o.retailPrice || ''}` :
+                         o.monetizationType === 'BUY' ? `Compra ${o.currency || ''} ${o.retailPrice || ''}` : o.monetizationType;
+        
+        // Título principal: original si existe, sino traducido
+        const mainTitle = c.originalTitle || c.title;
+        const secondaryTitle = c.originalTitle && c.originalTitle !== c.title ? c.title : null;
+        
+        return `
+          <div class="card">
+            <div class="card-date-header">${o.lastChangeDate ? formatDate(o.lastChangeDate) : ''}</div>
+            <img class="card-poster" src="${getPosterUrl(c.posterUrl)}" alt="${mainTitle}" loading="lazy">
+            <div class="card-body">
+              <span class="card-type ${t.objectType.toLowerCase()}">${t.objectType === 'MOVIE' ? '🎬 Película' : '📺 Serie'}</span>
+              <h3 class="card-title">${mainTitle}</h3>
+              ${secondaryTitle ? `<p class="card-translated-title">${secondaryTitle}</p>` : ""}
+              ${getDirectors(c.credits) ? `<p class="card-director">🎬 ${getDirectors(c.credits)}</p>` : ''}
+              <p class="card-year">${c.originalReleaseYear}</p>
+              ${c.productionCountries?.length ? `<p class="card-countries">${formatCountries(c.productionCountries)}</p>` : ''}
+              <div class="card-meta">
+                ${c.scoring?.imdbScore ? `<span class="card-rating">⭐ ${c.scoring.imdbScore.toFixed(1)}</span>` : ''}
+                ${c.runtime ? `<span class="card-runtime">${formatRuntime(c.runtime)}</span>` : ''}
+              </div>
+              <div class="card-platform ${monetClass}">${o.package.clearName} • ${monetText}</div>
+              ${c.genres?.length ? `<p class="card-genres">${c.genres.map(g => g.translation).join(', ')}</p>` : ''}
+              <a class="card-link" href="https://www.justwatch.com${c.fullPath}" target="_blank">Ver en JustWatch →</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTitles(titles, containerId) {
+      const container = document.getElementById(containerId);
+      if (!titles.length) {
+        container.innerHTML = '<div class="empty"><div class="empty-icon">🎬</div><p>No se encontraron títulos con esos filtros</p></div>';
+        return;
+      }
+
+      container.innerHTML = titles.map(t => {
+        const c = t.content;
+        const o = t.watchNowOffer;
+        let platformHtml = '';
+        
+        if (o) {
+          const monetClass = o.monetizationType === 'FLATRATE' ? '' : o.monetizationType === 'RENT' ? 'rent' : 'buy';
+          const monetText = o.monetizationType === 'FLATRATE' ? 'Streaming' : 
+                           o.monetizationType === 'RENT' ? `Alquiler ${o.currency || ''} ${o.retailPrice || ''}` :
+                           o.monetizationType === 'BUY' ? `Compra ${o.currency || ''} ${o.retailPrice || ''}` : o.monetizationType;
+          platformHtml = `<div class="card-platform ${monetClass}">${o.package.clearName} • ${monetText}</div>`;
+        }
+        
+        return `
+          <div class="card">
+            <img class="card-poster" src="${getPosterUrl(c.posterUrl)}" alt="${c.title}" loading="lazy">
+            <div class="card-body">
+              <span class="card-type ${t.objectType.toLowerCase()}">${t.objectType === 'MOVIE' ? '🎬 Película' : '📺 Serie'}</span>
+              <h3 class="card-title">${c.title}</h3>
+              ${c.originalTitle && c.originalTitle !== c.title ? `<p class="card-original-title">${c.originalTitle}</p>` : ""}
+              <p class="card-year">${c.originalReleaseYear}</p>
+              <div class="card-meta">
+                ${c.scoring?.imdbScore ? `<span class="card-rating">⭐ ${c.scoring.imdbScore.toFixed(1)}</span>` : ''}
+                ${c.runtime ? `<span class="card-runtime">${formatRuntime(c.runtime)}</span>` : ''}
+              </div>
+              ${platformHtml}
+              ${c.genres?.length ? `<p class="card-genres">${c.genres.map(g => g.translation).join(', ')}</p>` : ''}
+              <a class="card-link" href="https://www.justwatch.com${c.fullPath}" target="_blank">Ver en JustWatch →</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Search functions
+    async function searchNewTitles() {
+      const container = document.getElementById('results-new');
+      container.innerHTML = '<div class="loading">Buscando títulos</div>';
+      
+      // Guardar configuración
+      saveConfig();
+
+      // Fechas de agregado a la plataforma
+      const addedFromStr = document.getElementById('added-from').value;
+      const addedToStr = document.getElementById('added-to').value;
+      
+      const addedFrom = parseDateDMY(addedFromStr);
+      const addedTo = parseDateDMY(addedToStr);
+      
+      // Si no hay fecha desde, usar último mes por defecto
+      let dateFrom;
+      if (addedFrom) {
+        dateFrom = addedFrom;
+      } else {
+        const d = new Date();
+        d.setDate(d.getDate() - 30);
+        dateFrom = d.toISOString().slice(0, 10);
+      }
+
+      try {
+        const releaseYearFrom = document.getElementById('release-year-from').value;
+        const releaseYearTo = document.getElementById('release-year-to').value;
+        
+        const res = await fetch('/api/new-titles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            providers: getCheckedValues('providers-new'),
+            objectTypes: getCheckedValues('types-new'),
+            monetizationTypes: getCheckedValues('monetization-new'),
+            dateFrom: dateFrom,
+            dateTo: addedTo || null,
+            first: parseInt(document.getElementById('count-new').value),
+            exclusiveOnly: document.getElementById('exclusive-new').checked,
+            productionCountries: getCheckedValues('countries-include-new'),
+            excludeProductionCountries: getCheckedValues('countries-exclude-new'),
+            releaseYearFrom: releaseYearFrom ? parseInt(releaseYearFrom) : null,
+            releaseYearTo: releaseYearTo ? parseInt(releaseYearTo) : null,
+          }),
+        });
+        const data = await res.json();
+        currentResults.new = data;
+        document.getElementById('count-new-results').textContent = `${data.length} títulos encontrados`;
+        renderNewTitles(data, 'results-new');
+      } catch (err) {
+        container.innerHTML = `<div class="empty"><div class="empty-icon">❌</div><p>Error: ${err.message}</p></div>`;
+      }
+    }
+
+    async function searchTitles() {
+      const container = document.getElementById('results-browse');
+      container.innerHTML = '<div class="loading">Buscando títulos</div>';
+
+      try {
+        const res = await fetch('/api/titles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            providers: getCheckedValues('providers-browse'),
+            objectTypes: getCheckedValues('types-browse'),
+            genres: getCheckedValues('genres-browse'),
+            monetizationTypes: getCheckedValues('monetization-browse'),
+            releaseYearFrom: document.getElementById('year-from').value ? parseInt(document.getElementById('year-from').value) : null,
+            releaseYearTo: document.getElementById('year-to').value ? parseInt(document.getElementById('year-to').value) : null,
+            first: parseInt(document.getElementById('count-browse').value),
+          }),
+        });
+        const data = await res.json();
+        currentResults.browse = data;
+        document.getElementById('count-browse-results').textContent = `${data.length} títulos encontrados`;
+        renderTitles(data, 'results-browse');
+      } catch (err) {
+        container.innerHTML = `<div class="empty"><div class="empty-icon">❌</div><p>Error: ${err.message}</p></div>`;
+      }
+    }
+
+    async function searchByName() {
+      const query = document.getElementById('search-query').value.trim();
+      if (!query) return;
+
+      const container = document.getElementById('results-search');
+      container.innerHTML = '<div class="loading">Buscando</div>';
+
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        currentResults.search = data;
+        renderTitles(data, 'results-search');
+      } catch (err) {
+        container.innerHTML = `<div class="empty"><div class="empty-icon">❌</div><p>Error: ${err.message}</p></div>`;
+      }
+    }
+
+    // Export functions
+    function exportJSON(type) {
+      const data = currentResults[type];
+      if (!data.length) return alert('No hay datos para exportar');
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `justwatch-${type}-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    function exportCSV(type) {
+      const data = currentResults[type];
+      if (!data.length) return alert('No hay datos para exportar');
+
+      const rows = [['Título', 'Año', 'Tipo', 'Plataforma', 'IMDB', 'Géneros', 'URL']];
+      
+      data.forEach(item => {
+        const node = item.node || item;
+        const content = node.content;
+        const offer = item.newOffer || node.watchNowOffer;
+        
+        rows.push([
+          `"${content.title.replace(/"/g, '""')}"`,
+          content.originalReleaseYear,
+          node.objectType,
+          offer?.package?.clearName || '',
+          content.scoring?.imdbScore || '',
+          `"${(content.genres?.map(g => g.translation).join(', ') || '').replace(/"/g, '""')}"`,
+          `https://www.justwatch.com${content.fullPath}`,
+        ]);
+      });
+
+      const csv = rows.map(r => r.join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `justwatch-${type}-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    init();
+  </script>
+</body>
+</html>
