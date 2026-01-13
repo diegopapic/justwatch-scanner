@@ -358,27 +358,70 @@ app.post('/api/new-titles', async (req, res) => {
       let hasMore = true;
       
       while (hasMore && allResults.length < first) {
-        const response = await fetch(GRAPHQL_ENDPOINT, {
-          method: 'POST',
-          headers: getHeaders(),
-          body: JSON.stringify({
-            operationName: 'GetNewTitles',
-            query,
-            variables: {
-              country, 
-              language, 
-              first: 50,
-              platform: 'WEB',
-              filter,
-              date: dateStr,
-              priceDrops: false,
-              pageType: 'NEW',
-              after,
-            },
-          }),
-        });
+        // Pequeño delay para evitar rate limiting
+        await new Promise(resolve => setTimeout(resolve, 200));
         
-        const data = await response.json();
+        let response;
+        try {
+          response = await fetch(GRAPHQL_ENDPOINT, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({
+              operationName: 'GetNewTitles',
+              query,
+              variables: {
+                country, 
+                language, 
+                first: 50,
+                platform: 'WEB',
+                filter,
+                date: dateStr,
+                priceDrops: false,
+                pageType: 'NEW',
+                after,
+              },
+            }),
+          });
+        } catch (fetchError) {
+          console.error('[NEW-TITLES] Fetch error:', fetchError.message);
+          // Devolver resultados parciales si hay
+          if (allResults.length > 0) {
+            console.log('[NEW-TITLES] Devolviendo ' + allResults.length + ' resultados parciales');
+            return res.json(allResults);
+          }
+          return res.status(500).json({ error: 'Error de conexión con JustWatch: ' + fetchError.message });
+        }
+        
+        if (!response.ok) {
+          console.error('[NEW-TITLES] HTTP error:', response.status, response.statusText);
+          if (allResults.length > 0) {
+            console.log('[NEW-TITLES] Devolviendo ' + allResults.length + ' resultados parciales');
+            return res.json(allResults);
+          }
+          return res.status(500).json({ error: `Error HTTP ${response.status}: ${response.statusText}` });
+        }
+        
+        let data;
+        try {
+          const text = await response.text();
+          // Verificar si es HTML (bloqueo de JustWatch)
+          if (text.startsWith('<!') || text.startsWith('<html')) {
+            console.error('[NEW-TITLES] JustWatch devolvió HTML (posible bloqueo)');
+            if (allResults.length > 0) {
+              console.log('[NEW-TITLES] Devolviendo ' + allResults.length + ' resultados parciales');
+              return res.json(allResults);
+            }
+            return res.status(429).json({ error: 'JustWatch bloqueó temporalmente las requests. Intentá de nuevo en unos minutos.' });
+          }
+          data = JSON.parse(text);
+        } catch (jsonError) {
+          console.error('[NEW-TITLES] JSON parse error:', jsonError.message);
+          if (allResults.length > 0) {
+            console.log('[NEW-TITLES] Devolviendo ' + allResults.length + ' resultados parciales');
+            return res.json(allResults);
+          }
+          return res.status(500).json({ error: 'Error al parsear respuesta de JustWatch' });
+        }
         
         if (data.errors) {
           console.error('[NEW-TITLES] GraphQL errors:', data.errors);
