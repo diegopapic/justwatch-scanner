@@ -3,7 +3,9 @@
     "allow": [
       "Bash(git -C \"C:\\\\Users\\\\diego\\\\justwatch-scanner\" show 95d9edb:public/index.html)",
       "Bash(git -C \"C:\\\\Users\\\\diego\\\\justwatch-scanner\" show 95d9edb:server.js)",
-      "Bash(git -C \"C:\\\\Users\\\\diego\\\\justwatch-scanner\" status)"
+      "Bash(git -C \"C:\\\\Users\\\\diego\\\\justwatch-scanner\" status)",
+      "Bash(git -C \"C:\\\\Users\\\\diego\\\\justwatch-scanner\" log --oneline -3)",
+      "Bash(git -C \"C:\\\\Users\\\\diego\\\\justwatch-scanner\" log origin/main --oneline -1)"
     ]
   }
 }

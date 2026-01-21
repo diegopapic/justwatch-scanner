@@ -32,7 +32,7 @@ const PROVIDERS = [
   { id: 'flt', name: 'Flow' },
   { id: 'itu', name: 'Apple TV' },
   { id: 'gop', name: 'Google Play Movies' },
-  { id: 'car', name: 'Cine.ar' },
+  { id: 'cne', name: 'Cine.ar' },
 ];
 
 const GENRES = [
@@ -256,6 +256,7 @@ app.post('/api/new-titles', async (req, res) => {
     'flt': 'flow',
     'itu': 'itunes',
     'gop': 'googleplaymovies',
+    'cne': 'cine',
   };
   
   // Convertir códigos de filtro a technicalNames
