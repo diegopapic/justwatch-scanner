@@ -151,7 +151,7 @@ export const ARGENTINA_PROVIDERS: Record<string, string> = {
   'mvp': 'Movistar Play',
   'pks': 'Pluto TV',
   'ybr': 'YouTube Premium',
-  'cne': 'Cine.ar',
+  'cin': 'Cine.ar',
 };
 
 // Géneros disponibles

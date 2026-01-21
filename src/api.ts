@@ -51,7 +51,7 @@ export function getProvidersForArgentina(): Provider[] {
     { id: 'itu', technicalName: 'itu', clearName: 'Apple TV', shortName: 'ITU' },
     { id: 'gop', technicalName: 'gop', clearName: 'Google Play Movies', shortName: 'GOP' },
     { id: 'ytr', technicalName: 'ytr', clearName: 'YouTube Premium', shortName: 'YTR' },
-    { id: 'cne', technicalName: 'cne', clearName: 'Cine.ar', shortName: 'CNE' },
+    { id: 'cin', technicalName: 'cin', clearName: 'Cine.ar', shortName: 'CIN' },
   ];
 }
 
