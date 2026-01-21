@@ -1,26 +1,13 @@
 {
-  "name": "justwatch-scanner",
+  "name": "justwatch-web",
   "version": "1.0.0",
-  "description": "Scanner de películas y series en JustWatch para Argentina",
-  "main": "dist/index.js",
-  "type": "module",
-  "bin": {
-    "justwatch-scanner": "./dist/index.js"
-  },
+  "description": "JustWatch Scanner para Argentina - Interfaz Web",
+  "main": "server.js",
   "scripts": {
-    "start": "tsx src/index.ts",
-    "build": "tsc",
-    "dev": "tsx watch src/index.ts"
+    "start": "node server.js"
   },
-  "keywords": ["justwatch", "streaming", "movies", "series", "argentina"],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
-    "@types/inquirer": "^9.0.9",
-    "@types/node": "^25.0.6",
-    "chalk": "^5.6.2",
-    "inquirer": "^13.2.0",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
   }
 }

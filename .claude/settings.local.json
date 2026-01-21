@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:\\\\Users\\\\diego\\\\justwatch-scanner\" show 95d9edb:public/index.html)",
+      "Bash(git -C \"C:\\\\Users\\\\diego\\\\justwatch-scanner\" show 95d9edb:server.js)",
+      "Bash(git -C \"C:\\\\Users\\\\diego\\\\justwatch-scanner\" status)"
+    ]
+  }
+}

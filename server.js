@@ -32,6 +32,7 @@ const PROVIDERS = [
   { id: 'flt', name: 'Flow' },
   { id: 'itu', name: 'Apple TV' },
   { id: 'gop', name: 'Google Play Movies' },
+  { id: 'car', name: 'Cine.ar' },
 ];
 
 const GENRES = [
